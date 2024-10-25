@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\AttendeeController;
 use App\Http\Controllers\DashboardController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -21,19 +22,22 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Authentication routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Protected routes, accessible only after login
+Route::middleware(['auth'])->group(function () {
+    // Dashboard route
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
+    // Routes for categories
+    Route::resource('categories', CategoryController::class);
 
+    // Routes for events
+    Route::resource('events', EventController::class);
 
-// Routes for categories
-Route::resource('categories', CategoryController::class);
-
-// Routes for events
-Route::resource('events', EventController::class);
-
-// Routes for attendees
-Route::resource('attendees', AttendeeController::class);
+    // Routes for attendees
+    Route::resource('attendees', AttendeeController::class);
+});
